@@ -1,0 +1,266 @@
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Support Chatbot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .chat-container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-header {
+            background-color: #4f46e5; /* Indigo 600 */
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+        .chatbox {
+            flex-grow: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            max-height: 400px; /* Limit chatbox height */
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .chatbox p {
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .chatbox p.user-message {
+            background-color: #e0f2fe; /* Light blue */
+            align-self: flex-end;
+            margin-left: auto;
+            text-align: right;
+        }
+        .chatbox p.bot-message {
+            background-color: #f0fdf4; /* Light green */
+            align-self: flex-start;
+            margin-right: auto;
+            text-align: left;
+        }
+        .chat-input-area {
+            display: flex;
+            padding: 1.5rem;
+            gap: 1rem;
+            background-color: #f8fafc; /* Light gray */
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+        }
+        .chat-input-area input[type="text"] {
+            flex-grow: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e1; /* Slate 300 */
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .chat-input-area input[type="text"]:focus {
+            border-color: #4f46e5; /* Indigo 600 */
+        }
+        .chat-input-area button {
+            background-color: #4f46e5; /* Indigo 600 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .chat-input-area button:hover {
+            background-color: #4338ca; /* Indigo 700 */
+            transform: translateY(-1px);
+        }
+        .chat-input-area button:active {
+            transform: translateY(1px);
+        }
+        .insights-section {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .insights-section h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #334155; /* Slate 700 */
+            margin-bottom: 1rem;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex flex-col items-center p-4 w-full">
+        <div class="chat-container">
+            <div class="chat-header">
+                Customer Support Chatbot
+            </div>
+            <div id="chatbox" class="chatbox flex flex-col">
+                <p class="bot-message">Hello! How can I assist you today?</p>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="userInput" placeholder="Type your message...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+
+        <div class="insights-section mt-8">
+            <h2>Chatbot Usage Insights</h2>
+            <canvas id="intentFrequencyChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Function to send user message and get bot response
+        async function sendMessage() {
+            const userInputField = document.getElementById("userInput");
+            const chatbox = document.getElementById("chatbox");
+            const userMessage = userInputField.value.trim();
+
+            if (userMessage === "") {
+                return; // Don't send empty messages
+            }
+
+            // Display user message in chatbox
+            chatbox.innerHTML += `<p class="user-message">User: ${userMessage}</p>`;
+            userInputField.value = ''; // Clear input field
+
+            // Scroll to the bottom of the chatbox
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            try {
+                // Fetch bot response from the Flask backend
+                const response = await fetch(`/get?msg=${encodeURIComponent(userMessage)}`);
+                const data = await response.json();
+
+                // Display bot message in chatbox
+                chatbox.innerHTML += `<p class="bot-message">Bot: ${data.response}</p>`;
+            } catch (error) {
+                console.error("Error fetching chatbot response:", error);
+                chatbox.innerHTML += `<p class="bot-message">Bot: Sorry, I'm having trouble connecting right now. Please try again later.</p>`;
+            }
+
+            // Scroll to the bottom again after bot response
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        // Allow sending message with Enter key
+        document.getElementById("userInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+        // Function to fetch and render the intent frequency chart
+        async function renderIntentFrequencyChart() {
+            try {
+                const response = await fetch('/plot_data');
+                const data = await response.json();
+
+                const ctx = document.getElementById('intentFrequencyChart').getContext('2d');
+
+                // Destroy existing chart if it exists to prevent multiple charts on updates
+                if (window.intentChartInstance) {
+                    window.intentChartInstance.destroy();
+                }
+
+                window.intentChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.intents,
+                        datasets: [{
+                            label: 'Number of Inquiries',
+                            data: data.frequency,
+                            backgroundColor: [
+                                '#4f46e5', // Indigo 600
+                                '#22c55e', // Green 500
+                                '#f97316', // Orange 500
+                                '#0ea5e9', // Sky 500
+                                '#ef4444'  // Red 500
+                            ],
+                            borderColor: [
+                                '#3730a3',
+                                '#16a34a',
+                                '#c2410c',
+                                '#0284c7',
+                                '#dc2626'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Frequency'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Intent Type'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false // No need for legend in single dataset bar chart
+                            },
+                            title: {
+                                display: true,
+                                text: 'Common Chatbot Intents'
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Error fetching intent frequency data:", error);
+                // Optionally display an error message in the UI
+            }
+        }
+
+        // Render the chart when the page loads
+        window.onload = renderIntentFrequencyChart;
+    </script>
+</body>
+</html>

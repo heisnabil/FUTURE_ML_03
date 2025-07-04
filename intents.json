@@ -1,0 +1,44 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": ["Hi", "Hello", "How are you?", "Is anyone there?", "Good day", "Whats up"],
+      "responses": ["Hello!", "Hi there!", "Greetings!", "How can I help you?", "Nice to see you!"]
+    },
+    {
+      "tag": "goodbye",
+      "patterns": ["Bye", "See you later", "Goodbye", "I am leaving", "Have a good day"],
+      "responses": ["Goodbye!", "See you later!", "Have a nice day!", "Talk to you soon!"]
+    },
+    {
+      "tag": "thanks",
+      "patterns": ["Thanks", "Thank you", "Much appreciated", "Thank you so much"],
+      "responses": ["You're welcome!", "No problem!", "Anytime!", "Glad to help!"]
+    },
+    {
+      "tag": "product_inquiry",
+      "patterns": ["Tell me about your products", "What do you sell?", "Product information", "List of products"],
+      "responses": ["We offer a wide range of electronics, including smartphones, laptops, smart home devices, and more. What are you interested in?", "Our main products include various consumer electronics. Do you have a specific product in mind?"]
+    },
+    {
+      "tag": "technical_support",
+      "patterns": ["I have a technical issue", "My device is not working", "Need technical help", "Troubleshooting", "Product malfunction"],
+      "responses": ["Please describe your technical issue in more detail. I'll try to help you troubleshoot.", "I can connect you to a technical support agent. What product are you having trouble with?", "Have you tried restarting your device?"]
+    },
+    {
+      "tag": "billing_inquiry",
+      "patterns": ["Billing question", "Invoice issue", "Payment problem", "Check my bill", "Refund status"],
+      "responses": ["For billing inquiries, please provide your account number or order ID.", "I can help with billing questions. What specifically do you need assistance with?", "Are you looking for information on an invoice or a refund?"]
+    },
+    {
+      "tag": "order_status",
+      "patterns": ["Where is my order?", "Order status", "Track my delivery", "When will my product arrive?"],
+      "responses": ["Please provide your order number so I can check the status of your delivery.", "To track your order, I'll need your order ID.", "Your order status can be checked with your order number."]
+    },
+    {
+      "tag": "contact_human",
+      "patterns": ["Talk to a human", "Speak to an agent", "Connect me to support", "I need to talk to someone"],
+      "responses": ["I can connect you to a human agent. Please hold while I transfer you.", "Would you like to speak to someone from our support team?", "I'll get a human agent to assist you shortly."]
+    }
+  ]
+}
